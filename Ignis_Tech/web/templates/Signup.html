@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Account</title>
+    {% load static %}
+    <!-- Load external CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'CSS/styles.css' %}">
+</head>
+<body class="login_body">
+
+    <div class="container" id="container">
+        <!-- Sign-in form -->
+        <div class="form-container sign-up-container">
+            <form class="l_s_form" method="post" action="{% url 'login' %}">{% csrf_token %}
+                <h1>Sign in</h1>
+                <br>
+                Email: {{login.email}}<br>
+                Password: {{login.password}}<br>
+                <a href="#">Forgot your password?</a>
+                <!-- Display error message -->
+                <div class="Error">{{error}}</div><br>
+                <!-- Sign-in button -->
+                <button>Sign In</button>
+            </form>
+        </div>
+
+        <!-- Sign-up form -->
+        <div class="form-container sign-in-container">
+            <form class="l_s_form" method="post" action="{% url 'signup' %}">{% csrf_token %}
+                <h1>Create Account</h1>
+                <br>
+                Name: {{signup.name}}<br>
+                Email: {{signup.email}}<br>
+                Password: {{signup.password}}<br>
+                <!-- Display error message -->
+                <div class="Error">{{error}}</div><br>
+                <!-- Sign-up button -->
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Overlay container for the flip animation -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <!-- Left overlay for sign-in -->
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <!-- Button to switch to sign-up -->
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+
+                <!-- Right overlay for sign-up -->
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Enter your personal details and start the journey with us</p>
+                    <!-- Button to switch to sign-in -->
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for toggling between sign-in and sign-up -->
+    <script>
+        const signUpButton = document.getElementById('signIn');
+        const signInButton = document.getElementById('signUp');
+        const container = document.getElementById('container');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+    </script>
+</body>
+</html>

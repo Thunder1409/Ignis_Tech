@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Specified</title>
+    {% load static %}
+    <!-- Load external CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'CSS/styles.css' %}">
+</head>
+<body class="background">
+    <nav>
+        <ul>
+            <!-- Global link -->
+            <li><a href="{% url 'home' %}"><b>Global</b></a></li>
+
+            <!-- Conditional rendering for user-specific functionality -->
+            {% if mkc %}
+                <li><a href="#" onclick="return false;"><b>User-Specific</b></a></li>
+            {% else %}
+                <!-- Login link -->
+                <li class="login"><a href="login"><b>Login</b></a></li>
+                <!-- Sign Up link -->
+                <li class=""><a href="signup"><b>Sign Up</b></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% if mkc %}
+        <!-- Add Event button -->
+        <button class="popup-button" onclick="togglePopup()">Add Event</button>
+
+        <!-- Popup form container -->
+        <div class="popup-form-container" id="popupFormContainer">
+            <div class="popup-form">
+                <h2>Event Form</h2>
+                <form action="{% url 'create_event' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+                    <br>
+                    Name: {{event.name}}<br>
+                    Date: {{event.date}}<br>
+                    Time: {{event.time}}<br>
+                    Location: {{event.location}}<br>
+                    Image: {{event.image}}<br><br>
+                    <input type="submit" value="Submit">
+                    <br>
+                </form>
+                <br>
+                <button onclick="togglePopup()">Close</button>
+            </div>
+        </div>
+
+        <!-- JavaScript function to toggle popup visibility -->
+        <script>
+            function togglePopup() {
+                var popupFormContainer = document.getElementById("popupFormContainer");
+                if (popupFormContainer.style.display === "block") {
+                    popupFormContainer.style.display = "none";
+                } else {
+                    popupFormContainer.style.display = "block";
+                }
+            }
+        </script>
+
+        <!-- Display event list for the user -->
+        <div class="container_data">
+            <h1 class="center">Event List</h1>
+            <div class="event-container">
+                {% for event in sql_data %}
+                    {% if event.user_id == mkc %}
+                        <div class="event {% if event.image.width > event.image.height %} landscape {% else %} portrait {% endif %}">
+                            <h2>{{ event.event_name }}</h2>
+                            <div class="event-info">
+                                <p>Date: {{ event.event_date }}</p>
+                                <p>Time: {{ event.event_time }}</p>
+                                <p>Location: {{ event.event_location }}</p>
+                            </div>
+                            <img src="{{ event.event_image.url }}" alt="Event Image">
+                            <form method="post" action="{% url 'like_event' event.id %}">
+                                {% csrf_token %}
+                                {% if mkc %}
+                                    {% if not event.is_liked %}
+                                        <button type="submit" class="like-button liked" data-event-id="{{ event.id }}">Like</button>
+                                    {% else %}
+                                        Liked
+                                    {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <!-- JavaScript to handle like button click -->
+                <script>
+                    document.querySelectorAll('.like-button').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const eventId = this.getAttribute('data-event-id');
+                            fetch(`/like_event/${eventId}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                }
+                            }).then(response => {
+                                if (response.ok) {
+                                    // Update UI or provide feedback as needed
+                                    console.log('Event liked successfully');
+                                } else {
+                                    console.error('Failed to like event');
+                                }
+                            }).catch(error => {
+                                console.error('Error:', error);
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    {% else %}
+        <!-- Display message if user is not logged in -->
+        Login First
+    {% endif %}
+</body>
+</html>
